@@ -1,7 +1,8 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, filters
+from rest_framework.viewsets import ModelViewSet
 
-from apps.courses.models import Course, Lesson
-from apps.courses.serializers import CourseSerializer, LessonSerializer
+from apps.courses.models import Course, Lesson, Payments
+from apps.courses.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -29,3 +30,11 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
+
+
+class PaymentsViewSet(ModelViewSet):
+    serializer_class = PaymentsSerializer
+    queryset = Payments.objects.all()
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    ordering_fields = ['date_payment']
+    search_fields = ['course__title', 'lesson__title', 'payment_type']
