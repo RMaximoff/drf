@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
 from apps.users.models import User
@@ -9,6 +10,7 @@ class Course(models.Model):
     title = models.CharField(max_length=100, verbose_name="Название курса")
     description = models.TextField(verbose_name="Описание курса")
     preview = models.ImageField(upload_to='course/', verbose_name='Превью')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Создатель')
 
     def __str__(self):
         return f'{self.title}'
@@ -25,6 +27,7 @@ class Lesson(models.Model):
     video_link = models.URLField(verbose_name='Ссылка на видео')
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, verbose_name='Course', **NULLABLE,
                                related_name='lesson')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Создатель')
 
     def __str__(self):
         return f'{self.title}'
