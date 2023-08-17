@@ -7,9 +7,9 @@ NULLABLE = {'blank': True, 'null': True}
 
 
 class Course(models.Model):
-    title = models.CharField(max_length=100, verbose_name="Название курса")
-    description = models.TextField(verbose_name="Описание курса")
-    preview = models.ImageField(upload_to='course/', verbose_name='Превью')
+    title = models.CharField(max_length=100, verbose_name="Название курса", null=True, blank=True)
+    description = models.TextField(verbose_name="Описание курса", null=True, blank=True)
+    preview = models.ImageField(upload_to='course/', null=True, blank=True, verbose_name='Превью')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Создатель')
 
     def __str__(self):
@@ -21,10 +21,10 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    title = models.CharField(max_length=100, verbose_name="Название курса")
-    description = models.TextField(verbose_name="Описание курса")
-    preview = models.ImageField(upload_to='lesson/', verbose_name='Превью')
-    video_link = models.URLField(verbose_name='Ссылка на видео')
+    title = models.CharField(max_length=100, verbose_name="Название курса", null=True, blank=True)
+    description = models.TextField(verbose_name="Описание курса", null=True, blank=True)
+    preview = models.ImageField(upload_to='lesson/', verbose_name='Превью', null=True, blank=True,)
+    video_link = models.URLField(verbose_name='Ссылка на видео', null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, verbose_name='Course', **NULLABLE,
                                related_name='lesson')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Создатель')
@@ -49,3 +49,10 @@ class Payments(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, verbose_name='урок', blank=True, null=True)
     payment_amount = models.FloatField(verbose_name='сумма оплаты')
     payment_type = models.CharField(max_length=10, choices=PAYMENT_TYPE, verbose_name='способ оплаты')
+
+
+class Subscriptions(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+
