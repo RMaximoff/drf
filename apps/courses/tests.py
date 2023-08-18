@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from apps.courses.models import Course, Lesson
+from apps.courses.models import Course, Lesson, Subscriptions
 from apps.users.models import User
 
 
@@ -60,3 +60,41 @@ class LessonTestCase(APITestCase):
         response = self.client.delete(lesson_delete_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Lesson.objects.filter(pk=self.lesson.pk).exists())
+
+
+class SubscriptionsTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.course = Course.objects.create(title='test')
+        self.user = User.objects.create(email='test@test.ru', password='1234')
+        self.data = {
+            'user': self.user,
+            'course': self.course,
+        }
+
+        self.subscription = Subscriptions.objects.create(**self.data)
+        self.client.force_authenticate(user=self.user)
+
+    def test_create_subscription(self):
+        data = {
+            'user': self.user.pk,
+            'course': self.course.pk,
+        }
+        subscription_url = reverse('course:subscriptions-list')
+        print(subscription_url)
+        response = self.client.post(subscription_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Subscriptions.objects.all().count(), 2)
+
+    def test_list_subscriptions(self):
+        subscription_url = reverse('course:subscriptions-list')
+        print(subscription_url)
+        response = self.client.get(subscription_url)
+        print(response.json())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_retrieve_subscription(self):
+        subscription_detail_url = reverse('course:subscriptions-detail', kwargs={'pk': self.subscription.pk})
+        response = self.client.get(subscription_detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['user'], self.subscription.user.pk)
